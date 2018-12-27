@@ -58,7 +58,7 @@ def dmdtize_single_object(args):
 
 def dmdtize(read_dir, base_dir='test' ):
     objects = []
-    objects_file='{}/objects.csv'%(read_dir)
+    objects_file='{}/objects.csv'.format(read_dir)
 
     with open(objects_file, 'r') as of:
         objects = of.read().split(',')

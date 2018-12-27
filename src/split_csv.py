@@ -22,11 +22,11 @@ def split_csv(data_file, base_dir):
 
 def gen_objects_csv(meta_file, base_dir):
     df_meta = pd.read_csv(meta_file)
-    objects = pd.object_id.drop_duplicates().values
+    objects = df_meta.object_id.drop_duplicates().values
     objects = [str(obj) for obj in objects]
     objects_str = ",".join(objects)
     
-    with open("{}/objects.csv", "w") as f:
+    with open("{}/objects.csv".format(base_dir), "w") as f:
         f.write(objects_str)
 
 gen_objects_csv("../input/training_set_metadata.csv", "../input/train/train_csv")

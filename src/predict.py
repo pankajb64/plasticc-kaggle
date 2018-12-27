@@ -27,14 +27,18 @@ with tf.Session(config=tf.ConfigProto(inter_op_parallelism_threads=16)) as sess:
     weights[8], weights[12] = 2, 2
     epsilon = 1e-7
     class_counts = df_meta.groupby('target')['object_id'].count().values #number of objects per class, calcualte this
-
+    #proportion of objects per class
+    class_proportions = class_counts/np.max(class_counts)
+    
     def weighted_mc_log_loss(y_true, y_pred):
         y_pred_clipped = K.clip(y_pred, epsilon, 1-epsilon)
-        #true labels weighted by weights and counts per class
-        y_true_weighted = (y_true * weights)/class_counts
+        #true labels weighted by weights and percent elements per class
+        y_true_weighted = (y_true * weights)/class_proportions
         #multiply tensors element-wise and then sum
         loss_num = (y_true_weighted * K.log(y_pred_clipped))
-        loss = K.sum(loss_num)/K.sum(weights)
+        loss = -1*K.sum(loss_num)/K.sum(weights)
+        
+        return loss
         
 
     def load_dmdt_image(object_id, read_dir):
@@ -72,10 +76,8 @@ with tf.Session(config=tf.ConfigProto(inter_op_parallelism_threads=16)) as sess:
         ohe_preds  = [modify_prob(pred) for pred in batch_preds]
         return ohe_preds
 
-    def dmdt_predict(read_dir, model_file, output_file, batch_size=512):
+    def dmdt_predict(objects_file, read_dir, model_file, output_file, batch_size=512):
         objects = []
-        objects_file='{}/objects.csv'%(read_dir)
-        
         with open(objects_file, 'r') as of:
             objects = of.read().split(',')
 
@@ -99,17 +101,14 @@ with tf.Session(config=tf.ConfigProto(inter_op_parallelism_threads=16)) as sess:
                     pbar.update()
 
         predictions = np.array(predictions).reshape(-1, len(classes))
-        print(predictions.shape)
-
-        with open('temp.pkl', 'wb') as ft:
-            pickle.dump(predictions, ft)
-
+    
         pred_df = pd.DataFrame(predictions, columns=pred_cols)
         pred_df['object_id'] = objects
         pred_df.to_csv(output_file, index=False)
 
     dmdt_predict( 
-        read_dir='../input/train/train', 
-        model_file='keras.model',
-        output_file='test_results.csv',
+        objects_file='../input/train/train_csv/objects.csv',
+        read_dir='../input/train/train_dmdt', 
+        model_file='../model/model_2018_12_27_17_11_02.h5',
+        output_file='../output/test_results.csv',
         batch_size=1024)
