@@ -29,7 +29,7 @@ input/
     train_dmdt/                                             #base directory to generate the DMDT Images (see below)
 ```
 
-I broke the main kernel into four files:
+I've divided the main kernel into four files:
 - `split_csv.py` - breaks the time series data into one csv file per object (this is useful especially when the number of objects is huge - as was the case for the test set). It expects a base directory (`input/train_csv` by default), and generates an objects.csv containing a list of all unique object ids, as well as one csv file per object, containing time series data for that object.
 - `dmdtize.py` - generates dmdt images for each object given its individual csv file. It expects a location where the csv files are store (`input/train_csv` by default) and a base directory to store the dmdt images (`input/train_dmdt` by default)
 - `train.py` - Trains a Keras model on the DMDT Images. It expects a location where the dmdt images are stored (`input/train_dmdt` by default). The resulting model is saved to `model/model_<timestamp>.h5`
