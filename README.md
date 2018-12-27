@@ -24,8 +24,9 @@ I assume the input directory has the following structure:
 input/
   training_set.csv                                        #file containing the time series data
   training_set_metadata.csv                               #file containing metadata
-  train_csv/                                              #base directory to generate the individual csv files (see below)
-  train_dmdt/                                             #base directory to generate the DMDT Images (see below)
+  train/
+    train_csv/                                              #base directory to generate the individual csv files (see below)
+    train_dmdt/                                             #base directory to generate the DMDT Images (see below)
 ```
 
 I broke the main kernel into four files:
